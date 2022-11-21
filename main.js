@@ -1,10 +1,11 @@
-const SCREEN_WIDTH = 900:
+const SCREEN_WIDTH = 900;
 const SCREEN_HEIGHT = 600;
+var div = document.getElementById("game");
 
 const canvas = document.createElement("canvas")
 canvas.setAttribute("width", SCREEN_WIDTH)
 canvas.setAttribute("height", SCREEN_HEIGHT)
-document.body.(canvas)
+document.getElementById("game").appendChild(canvas)
 
 const TICK = 30;
 
@@ -19,7 +20,7 @@ function gameLoop(){
     movePlayer()
     const rays = getRays()
     renderScene(rays)
-    renderMinimap(0,0,0.75, rays)
+    rendrMinimp(0,0,0.75,rays)
 }
 
 setInterval(gameLoop,TICK)
