@@ -252,7 +252,7 @@ function renderScene(rays) {
 function gameLoop() {
     clearScreen();
     movePlayer();
-    playerPosition(player.x, player.y);
+    //playerPosition(player.x, player.y);
     const rays = getRays();
     renderScene(rays);
     //renderMinimap(0, 0, 0.5, rays);
