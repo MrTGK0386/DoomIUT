@@ -3,11 +3,13 @@ body{
     height: 100%;
     margin: 0;
 }
+#skill {
+    display: flex;
+}
+
 #game {
     width: 900px;
     height: 600px;
-    background: aquamarine;
-    margin: auto;
 }
 
 #interface {
