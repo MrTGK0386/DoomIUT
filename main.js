@@ -1,25 +1,3 @@
-const SCREEN_WIDTH =900;
-const SCREEN_HEIGHT =600;
-
-const canvas = document.createElement("canvas")
-canvas.setAttribute("width", SCREEN_WIDTH)
-canvas.setAttribute("height", SCREEN_HEIGHT)
-document.getElementById("game").appendChild(canvas)
-
-const context = canvas.getContext("2d")
-
-const TICK = 30;
-
-const CELL_SIZE = 64;
-
-const PLAYER_SIZE = 10;
-
-const FOV = toRadians(60);
-
-const COLORS = {
-    rays : "#ffa600"
-}
-
 const map = [
     [1, 1, 1, 1, 1, 1, 1],
     [1, 0, 0, 0, 0, 1, 1],
@@ -30,24 +8,95 @@ const map = [
     [1, 1, 1, 1, 1, 1, 1],
 ];
 
+const SCREEN_WIDTH =900;
+const SCREEN_HEIGHT =600;
+
+const TICK = 30;
+
+const CELL_SIZE = 32;
+
+const FOV = toRadians(60);
+
+const COLORS = {
+    rays : "#ffa600"
+}
+
 const player = {
     x: CELL_SIZE * 1.5,
     y: CELL_SIZE * 2,
-    angle: 0,
+    angle: toRadians(0),
     speed: 0
 }
+
+const canvas = document.createElement("canvas")
+canvas.setAttribute("width", SCREEN_WIDTH)
+canvas.setAttribute("height", SCREEN_HEIGHT)
+document.getElementById("game").appendChild(canvas)
+
+const context = canvas.getContext("2d")
+
+PLAYER_SIZE = 10;
 
 function clearScreen(){
     context.fillStyle = "cyan"
     context.fillRect(0,0,SCREEN_WIDTH,SCREEN_HEIGHT)
 }
-function movePlayer(){
-    player.x += Math.cos(player.angle) * player.speed;
-    player.y += Math.sin(player.angle) * player.speed;
+
+function renderMinimap(posX = 0,posY = 0,scale = 1,rays){
+    const cellSize = scale * CELL_SIZE;
+    map.forEach((row, y) => {
+        row.forEach((cell, x) => {
+            if(cell){
+                context.fillStyle = "grey"
+                context.fillRect(posX + x * cellSize,
+                    posY + y *cellSize,
+                    cellSize,
+                    cellSize
+                );
+            }
+        });
+    });
+
+
+
+    context.fillStyle = "blue"
+    context.fillRect(
+        posX + player.x * scale - PLAYER_SIZE/2,
+        posY + player.y * scale - PLAYER_SIZE/2,
+        PLAYER_SIZE,
+        PLAYER_SIZE
+    )
+
+    const rayLength = PLAYER_SIZE * 2;
+    context.strokeStyle = "blue"
+    context.beginPath()
+    context.moveTo(player.x * scale , player.y * scale )
+    context.lineTo(
+        (player.x + Math.cos(player.angle) * rayLength) * scale,
+        (player.y + Math.sin(player.angle) * rayLength) * scale,
+    );
+    context.closePath();
+    context.stroke();
+
+    context.strokeStyle = COLORS.rays;
+    rays.forEach((ray) => {
+        context.beginPath()
+        context.moveTo(player.x * scale , player.y * scale );
+        context.lineTo(
+            (player.x + Math.cos(ray.angle) * ray.distance) * scale,
+            (player.y + Math.sin(ray.angle) * ray.distance) * scale,
+        );
+        context.closePath();
+        context.stroke();
+    });
+
+}
+function toRadians(deg){
+    return (deg * Math.PI) / 180;
 }
 
-function distance(x1,y1,x2,y2){
-    return Math.sqrt(Math.pow(x2 - x1,2) +Math.pow(y2 - y1,2));
+function distance(x1, y1, x2, y2) {
+    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 }
 
 function outOfMapBounds(x,y){
@@ -56,7 +105,7 @@ function outOfMapBounds(x,y){
 
 
 function getVCollision(angle){
-    const right = Math.abs(Math.floor((angle-Math.PI/2) / Math.PI) % 2 );
+    const right = Math.abs(Math.floor((angle - Math.PI / 2) / Math.PI) % 2 );
 
     const firstX = right
         ? Math.floor(player.x / CELL_SIZE) * CELL_SIZE + CELL_SIZE
@@ -77,9 +126,8 @@ function getVCollision(angle){
         const cellY = Math.floor(nextY / CELL_SIZE);
 
         if(outOfMapBounds(cellX, cellY)){
-            break
+            break;
         }
-
         wall = map[cellY][cellX];
         if (!wall){
             nextX += xA;
@@ -87,13 +135,16 @@ function getVCollision(angle){
         } else{
         }
     }
-    return {angle,distance : distance(player.x, player.y, nextX, nextY), vertical : true}
+    return {
+        angle,
+        distance : distance(player.x, player.y, nextX, nextY),
+        vertical : true,
+    };
 }
 
 function castRay(angle){
     const vCollision = getVCollision(angle);
-   // const hCollision = getHCollision(angle);
-
+   //const hCollision = getHCollision(angle);
     return vCollision;
 
     //return hCollision.distance >= vCollision.distance ? vCollision : hCollision;
@@ -109,55 +160,13 @@ function getRays(){
         return ray;
     });
 }
-function renderScene(rays){}
 
-function renderMinimap(posX = 0,posY = 0,scale = 1,rays){
-    const cellSize = scale * CELL_SIZE;
-    map.forEach((row, y) => {
-        row.forEach((cell, x) => {
-            if(cell){
-                context.fillStyle = "grey"
-                context.fillRect(posX + x * cellSize,
-                    posY + y *cellSize,
-                    cellSize,
-                    cellSize
-                );
-            }
-        });
-    });
-
-    context.strokeStyle = COLORS.rays;
-    rays.forEach(ray => {
-        context.beginPath()
-        context.moveTo(player.x * scale + posX, player.y * scale + posY)
-        context.lineTo(
-            (player.x + Math.cos(ray.angle) * ray.distance) * scale,
-            (player.x + Math.cos(ray.angle) * ray.distance) * scale,
-        )
-        context.closePath()
-        context.stroke()
-    })
-    
-    context.fillStyle = "blue"
-    context.fillRect(
-        posX + player.x * scale - PLAYER_SIZE/2,
-        posY + player.y * scale - PLAYER_SIZE/2,
-        PLAYER_SIZE,
-        PLAYER_SIZE
-    )
-    
-    const rayLength = PLAYER_SIZE * 2;
-    context.strokeStyle = "blue"
-    context.beginPath()
-    context.moveTo(player.x * scale + posX, player.y * scale + posY)
-    context.lineTo(
-        (player.x + Math.cos(player.angle) * rayLength) * scale,
-        (player.y + Math.sin(player.angle) * rayLength) * scale, 
-    )
-    context.closePath()
-    context.stroke()
-    
+function movePlayer(){
+    player.x += Math.cos(player.angle) * player.speed;
+    player.y += Math.sin(player.angle) * player.speed;
 }
+
+function renderScene(rays){}
 
 function gameLoop(){
     clearScreen()
@@ -169,9 +178,6 @@ function gameLoop(){
 
 setInterval(gameLoop,TICK)
 
-function toRadians(deg){
-    return (deg * Math.PI)/180 
-}
 
 document.addEventListener("keydown", (e)=> {
     if(e.key=== "z"){
@@ -188,6 +194,6 @@ document.addEventListener("keyup", (e)=> {
     }
 })
 
-document.addEventListener("mousemove", (e) => {
-    player.angle += toRadians(e.movementX)
+document.addEventListener("mousemove", function (event){
+    player.angle += toRadians(event.movementX);
 })
