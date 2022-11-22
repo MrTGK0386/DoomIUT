@@ -1,5 +1,5 @@
-const SCREEN_WIDTH = 900;
-const SCREEN_HEIGHT = 600;
+const SCREEN_WIDTH =900;
+const SCREEN_HEIGHT =600;
 
 const canvas = document.createElement("canvas")
 canvas.setAttribute("width", SCREEN_WIDTH)
@@ -46,13 +46,14 @@ function movePlayer(){
     player.y += Math.sin(player.angle) * player.speed;
 }
 
-function outOfMapBounds(x,y){
-    return x < 0 || x >= map[0].length || y < 0 || y >= map.length
+function distance(x1,y1,x2,y2){
+    return Math.sqrt(Math.pow(x2 - x1,2) +Math.pow(y2 - y1,2));
 }
 
-function distance(x1,y1,x2,y2){
-    return Math.sqrt(Math.pow(x2-x1,2) +Math.pow(y2-y1,2))
+function outOfMapBounds(x,y){
+    return x < 0 || x >= map[0].length || y < 0 || y >= map.length;
 }
+
 
 function getVCollision(angle){
     const right = Math.abs(Math.floor((angle-Math.PI/2) / Math.PI) % 2 );
@@ -73,16 +74,17 @@ function getVCollision(angle){
         const cellX = right
             ? Math.floor(nextX / CELL_SIZE)
             : Math.floor(nextX / CELL_SIZE) - 1;
-        const cellY = Math.floor(nextY / CELL_SIZE)
+        const cellY = Math.floor(nextY / CELL_SIZE);
 
         if(outOfMapBounds(cellX, cellY)){
             break
         }
 
-        wall = map[cellY][cellX]
+        wall = map[cellY][cellX];
         if (!wall){
-            nextX += xA
-            nextY += yA
+            nextX += xA;
+            nextY += yA;
+        } else{
         }
     }
     return {angle,distance : distance(player.x, player.y, nextX, nextY), vertical : true}
@@ -101,11 +103,11 @@ function getRays(){
     const initialAngle = player.angle - FOV / 2;
     const numberOfRays = SCREEN_WIDTH;
     const angleStep = FOV / numberOfRays;
-    return Array.from ({ length : numberOfRays}, (_, i) => {
-        const angle = initialAngle + i + angleStep;
+    return Array.from ({ length: numberOfRays}, (_, i) => {
+        const angle = initialAngle + i * angleStep;
         const ray = castRay(angle);
         return ray;
-    })
+    });
 }
 function renderScene(rays){}
 
