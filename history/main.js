@@ -41,7 +41,9 @@ const CELL_SIZE = 32;
 
 const FOV = toRadians(90);
 
-const COLORS = {
+const COLLISION_OFFSET = 15; //offset used to verify an object's presence in front of the player
+
+const COLORS = { //colors used on the differents part of the game
     rays : "#ffa600",
     floor : "#1d1f1c",
     ceiling : "#b8bab6",
@@ -49,7 +51,7 @@ const COLORS = {
     wallDark : "#a5bd9b",
 };
 
-const player = {
+const player = { //intialize position
     x: CELL_SIZE * 1.5,
     y: CELL_SIZE * 15 ,
     angle: toRadians(0),
@@ -68,6 +70,14 @@ PLAYER_SIZE = 10;
 function clearScreen() {
     context.fillStyle = "red";
     context.fillRect(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+}
+
+function displayInfo(){
+    const position = [Math.round(player.x / CELL_SIZE),Math.round(player.y / CELL_SIZE)];
+    if (position){
+
+    }
+    console.log(position);
 }
 
 function renderMinimap(posX = 0, posY = 0, scale, rays) {
@@ -252,10 +262,10 @@ function renderScene(rays) {
 function gameLoop() {
     clearScreen();
     movePlayer();
-    //playerPosition(player.x, player.y);
+    //displayInfo();
     const rays = getRays();
     renderScene(rays);
-    //renderMinimap(0, 0, 0.5, rays);
+    renderMinimap(0, 0, 0.5, rays);
 }
 
 setInterval(gameLoop, TICK);
@@ -265,10 +275,10 @@ canvas.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", (e) => {
-    if (e.key === "z") {
+    if (e.key === "z" || player.x ) {
         player.speed = 2;
     }
-    if (e.key === "s") {
+    if (e.key === "s" || ) {
         player.speed = -2;
     }
 });
